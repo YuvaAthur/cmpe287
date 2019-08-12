@@ -1,7 +1,7 @@
 import sqlite3
 
 import click
-from flask import current_app, g
+from flask import current_app, g, flash
 from flask.cli import with_appcontext
 
 
@@ -16,6 +16,12 @@ def get_db():
             detect_types=sqlite3.PARSE_DECLTYPES
         )
         g.db.row_factory = sqlite3.Row
+        # #test code - prefilled parlor_status table
+        # cursor = g.db.cursor()
+        # cursor.execute("select count(*) from parlor_status")
+        # (number_of_rows,)=cursor.fetchone()
+        # msg = 'Found {0} number of rows'.format(number_of_rows)
+        # flash(msg)
 
     return g.db
 

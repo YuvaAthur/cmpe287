@@ -27,7 +27,7 @@ def create_app(test_config=None):
         pass
 
     @app.route('/hello')
-    #@app.route('/')   # - For debugging purposes
+    # @app.route('/')   # - For debugging purposes
     def hello():
         return 'Hello, World!'
 
@@ -38,14 +38,12 @@ def create_app(test_config=None):
     db.init_app(app)
 
     # apply the blueprints to the app
-    from seecow import auth, blog
+    from seecow import camfeed,auth
+    app.register_blueprint(camfeed.bp)
     app.register_blueprint(auth.bp)
-    app.register_blueprint(blog.bp)
 
-    # make url_for('index') == url_for('blog.index')
-    # in another app, you might define a separate main index here with
-    # app.route, while giving the blog blueprint a url_prefix, but for
-    # the tutorial the blog will be the main index
+    # make url_for('index') == url_for('camfeed.index')
     app.add_url_rule('/', endpoint='index')
+
 
     return app

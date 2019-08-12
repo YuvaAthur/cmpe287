@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Cattle Traffic Info{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  {% for cattle in cattle_status %}
+    <article class="cattle">
+      <header>
+        <div>
+          <h1>{{ cattle['cattle_id'] }} was recorded in: </h1>
+          <div class="about">Direction:  {{ cattle['info'] }} at {{ cattle['time_in']}}</div>
+        </div>
+      </header>
+      <p class="body">near {{ cattle['place'] }}</p>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
