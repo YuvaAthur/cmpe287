@@ -45,5 +45,12 @@ def create_app(test_config=None):
     # make url_for('index') == url_for('camfeed.index')
     app.add_url_rule('/', endpoint='index')
 
-
+    from flask_login import LoginManager
+    # from flask.ext.login import LoginManager
+    login_manager = LoginManager()
+    login_manager.init_app(app) # app is a Flask object
+    @login_manager.user_loader
+    def load_user(user_id):
+        return None
+    
     return app

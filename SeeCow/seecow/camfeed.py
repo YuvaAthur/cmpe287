@@ -24,7 +24,7 @@ def current_status():
         ' ORDER BY time_in DESC',
     ).fetchall()    # returns a list
     msg = 'Number of records = {0}.'.format(len(cattle_status))
-    flash(msg)
+    # flash(msg)
     return render_template('camfeed/list.html', cattle_status=cattle_status)
     # return cattle_status
 

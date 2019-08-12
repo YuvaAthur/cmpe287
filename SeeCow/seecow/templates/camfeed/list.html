@@ -5,18 +5,22 @@
 {% endblock %}
 
 {% block content %}
-  {% for cattle in cattle_status %}
-    <article class="cattle">
-      <header>
-        <div>
-          <h1>{{ cattle['cattle_id'] }} was recorded in: </h1>
-          <div class="about">Direction:  {{ cattle['info'] }} at {{ cattle['time_in']}}</div>
-        </div>
-      </header>
-      <p class="body">near {{ cattle['place'] }}</p>
-    </article>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
+  {% if g.user %}
+    {% for cattle in cattle_status %}
+      <article class="cattle">
+        <header>
+          <div>
+            <h1>{{ cattle['cattle_id'] }} was recorded in: </h1>
+            <div class="about">Direction:  {{ cattle['info'] }} at {{ cattle['time_in']}}</div>
+          </div>
+        </header>
+        <p class="body">near {{ cattle['place'] }}</p>
+      </article>
+      {% if not loop.last %}
+        <hr>
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    <h1> Please login or register to continue </h1>
+  {% endif %}
 {% endblock %}
