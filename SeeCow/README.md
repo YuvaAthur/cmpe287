@@ -55,10 +55,13 @@
 ## Security safe guards
 * Display list only if user is authorized
     * Needs ```{% if current_user.is_authenticated %}```
+        * can also use ```g.user```
     * This is set by LoginManager ```from flask_login import LoginManager```
     * Set variable for decorators to work ``` login_manager = LoginManager()```
-    * Grab user when loaded ```@login_manager.user_loader```
-    * By getting from global ```login_manager(g.user)```
+    * User Loader call back ```@login_manager.user_loader```
+        * Need to return None during initialization ```__init__.py```
+        * Later on get from session data ```implement a call back```
+    * Update ```login_user(User)``` after login authentication
 
 * Ensure that next url is also safe
     * ```is_safe_url(next)```
