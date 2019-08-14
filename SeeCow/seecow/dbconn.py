@@ -3,6 +3,8 @@ import sqlite3
 import click
 from flask import current_app, g, flash
 from flask.cli import with_appcontext
+from flask_sqlalchemy import SQLAlchemy
+
 
 
 def get_db():
@@ -35,19 +37,24 @@ def close_db(e=None):
     if db is not None:
         db.close()
 
-
+""" Transitioning to SQLAlchemy"""
 def init_db():
-    """Clear existing data and create new tables."""
-    db = get_db()
+    db.create_all()
 
-    with current_app.open_resource('schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
+        
+# def init_db():
+#     """Clear existing data and create new tables."""
+#     db = get_db()
+
+#     with current_app.open_resource('schema.sql') as f:
+#         db.executescript(f.read().decode('utf8'))
 
 
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
     """Clear existing data and create new tables."""
+    click.echo('Call to create db.')
     init_db()
     click.echo('Initialized the database.')
 
@@ -58,3 +65,4 @@ def init_app(app):
     """
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+

@@ -19,6 +19,10 @@
 ```flask init-db ```
 ```flask run```
 
+* In case of port conflict, use the following before running the app
+```export FLASK_RUN_PORT=8000 ``` 
+
+
 * Step1 :  ```http://flask.pocoo.org/docs/1.0/tutorial/factory/``` has to work
     * added ```@app.route('/')``` to get to root URL 
         * Local/Single route - for testing purposes
@@ -29,6 +33,27 @@
         * ``` flask init-db ```
     * Bug was in name of .sql file --> should be ```schema.sql```
     * Basic screen is now visible
+
+* Step 2.1: Transitioning to SQLAlchemy
+    * Ref: https://flask-sqlalchemy.palletsprojects.com/en/2.x/api/
+    * Connect db to factory instance of app
+        * ```db = SQLAlchemy()```
+        * ```def create_app():``` & ``` db.init_app(app) ```
+    * Type information for Table definition
+        * Ref: https://docs.sqlalchemy.org/en/13/core/type_basics.html
+    * Initialize database
+        * https://flask-sqlalchemy.palletsprojects.com/en/2.x/contexts/
+        * >>> from seecow import create_app
+        * >>> app = create_app()
+        * >>> app.app_context().push()
+        * https://flask-sqlalchemy.palletsprojects.com/en/2.x/quickstart/ 
+        * >>> from seecow import db
+        * >>> db.create_all()
+        * Test data fetch
+        * >>> from seecow.model import User
+        * >>> User.query.all()
+
+
 
 
 * Step 3: Blueprints & Views
@@ -69,7 +94,73 @@
     * Ref: From Wayback machine - snippets
     * http://flask.pocoo.org/snippets/62/
 
+## Dashboard for data view
+* Several cool admin dashboards
+    * Ref: https://dev.to/sm0ke/flask-dashboard-open-source-boilerplates-dkg
+* Building dashboards from flask-dashboard-light-bootstrap
+    * Ref: https://github.com/app-generator/flask-dashboard-light-bootstrap
+* Learning to use SQLAlchemy to connect to SQLite DB
+    * 
 
+* Flash JSONDASH : https://github.com/christabor/flask_jsondash 
+    * ```pip install flask-jsondash```
+    * Note: Flash JSONDASH supports only MongoDB for now :(! 
+    * Need to find another library for Flash Dashboard.
+
+
+
+## Login Manager use 
+* Ref: https://flask-login.readthedocs.io/en/latest/ 
+* User Class
+    * https://github.com/shekhargulati/flask-login-example/blob/master/flask-login-example.py
+    * 
+
+
+
+
+
+## Deploy to Production
+* Ref: http://flask.pocoo.org/docs/1.0/tutorial/deploy/ 
+    * ``` pip install wheel```
+    * ``` python setup.py bdist_wheel ```
+        * Will generate file in ``` dist/seecow-1.0.0-py3-none-any.whl ``` 
+    * Installation
+        * Copy to new machine
+        * Set up venv
+        * ``` pip install seecow-1.0.0-py3-none-any.whl```
+        * ``` export FLASK_APP=seecow```
+        * ``` flask init-db ```
+    * Instance folder is created in a different location
+        * ``` venv/var/seecow-instance ``` <-- This is why SECRET is placed in this folder>
+    * Configure secret
+        * ``` python -c 'import os; print(os.urandom(16))' ```
+        * In ``` venv/var/seecow-instance/config.py```
+            * ``` SECRET_KEY = b'_5#y2L"F4Q8z\n\xec]/' ```
+    * Use Production Server
+        * ``` Werkzeug ``` is for development/debug purposes
+        * ``` pip install waitress ```
+        * ``` waitress-serve --call 'seecow:create_app' ```
+
+## Deploy on AWS Elastic Beanstalk
+* Ref: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-flask.html 
+
+
+
+
+## Miscellaneous info
+* Fix:  ```sqlite3.OperationalError: no such table: post``` in ```blog.py```
+    * Ref: https://stackoverflow.com/questions/28126140/python-sqlite3-operationalerror-no-such-table
+````
+import os.path
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, "PupilPremiumTable.db")
+with sqlite3.connect(db_path) as db:
+````
+
+
+# Appendix
+## Old code for secure redirect code
 Securely Redirect Back
 Posted by Armin Ronacher on 2011-07-28 @ 11:44 and filed in Security
 
@@ -135,55 +226,5 @@ In the template you have to make sure to relay the redirect target:
 The or here is just here to make None become an empty string.
 
 This snippet by Armin Ronacher can be used freely for anything you like. Consider it public domain.
-
-## Login Manager use 
-* Ref: https://flask-login.readthedocs.io/en/latest/ 
-* User Class
-    * https://github.com/shekhargulati/flask-login-example/blob/master/flask-login-example.py
-    * 
-
-
-
-
-
-## Deploy to Production
-* Ref: http://flask.pocoo.org/docs/1.0/tutorial/deploy/ 
-    * ``` pip install wheel```
-    * ``` python setup.py bdist_wheel ```
-        * Will generate file in ``` dist/seecow-1.0.0-py3-none-any.whl ``` 
-    * Installation
-        * Copy to new machine
-        * Set up venv
-        * ``` pip install seecow-1.0.0-py3-none-any.whl```
-        * ``` export FLASK_APP=seecow```
-        * ``` flask init-db ```
-    * Instance folder is created in a different location
-        * ``` venv/var/seecow-instance ``` <-- This is why SECRET is placed in this folder>
-    * Configure secret
-        * ``` python -c 'import os; print(os.urandom(16))' ```
-        * In ``` venv/var/seecow-instance/config.py```
-            * ``` SECRET_KEY = b'_5#y2L"F4Q8z\n\xec]/' ```
-    * Use Production Server
-        * ``` Werkzeug ``` is for development/debug purposes
-        * ``` pip install waitress ```
-        * ``` waitress-serve --call 'seecow:create_app' ```
-
-## Deploy on AWS Elastic Beanstalk
-* Ref: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-flask.html 
-
-
-
-
-## Miscellaneous info
-* Fix:  ```sqlite3.OperationalError: no such table: post``` in ```blog.py```
-    * Ref: https://stackoverflow.com/questions/28126140/python-sqlite3-operationalerror-no-such-table
-````
-import os.path
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, "PupilPremiumTable.db")
-with sqlite3.connect(db_path) as db:
-````
-
 
 

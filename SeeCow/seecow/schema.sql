@@ -17,6 +17,5 @@ CREATE TABLE parlor_status (
   cattle_id TEXT PRIMARY KEY,
   info TEXT NOT NULL,
   place TEXT NOT NULL,
-  time_in TEXT,
-  time_out TEXT
+  time TEXT
  );

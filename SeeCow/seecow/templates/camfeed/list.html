@@ -1,26 +1,39 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Cattle Traffic Info{% endblock %}</h1>
+  <h1>{% block title %}SeeCow Parlor{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+<h2> <font color="FF0000"> Cattle Movement Information </font></h2>
   {% if g.user %}
-    {% for cattle in cattle_status %}
-      <article class="cattle">
-        <header>
-          <div>
-            <h1>{{ cattle['cattle_id'] }} was recorded in: </h1>
-            <div class="about">Direction:  {{ cattle['info'] }} at {{ cattle['time_in']}}</div>
-          </div>
-        </header>
-        <p class="body">near {{ cattle['place'] }}</p>
-      </article>
-      {% if not loop.last %}
-        <hr>
-      {% endif %}
+  <table>
+    <tr> 
+        <th> Cattle ID</th>
+        <th><font color="FF0000" align="left"> Movement direction (in/out)</font></th>
+        <th><font color="FF0000" align="left"> Detected time </font></th>
+    </tr>  
+    {% for cattle in cattle_dict %}
+      <tr> 
+        <td><input type="radio" id="id_{{ cattle['cattle_id'] }}" name="selected_cattle" value="{{ cattle['cattle_id'] }}" align="right">{{ cattle['cattle_id'] }}</td>
+        <td> <font color="FF00FF" align="right">{{ cattle['info'] }}</font></td>
+        <td><font color="FF0000" align="right" >{{ cattle['time']}}</font></td>
+      </tr>
     {% endfor %}
   {% else %}
     <h1> Please login or register to continue </h1>
   {% endif %}
 {% endblock %}
+
+<!--
+  <article class="cattle">
+    <header>
+      <div>
+        <h1>{{ cattle['cattle_id'] }} was recorded in: </h1>
+        <div class="about">Direction:  {{ cattle['info'] }} at {{ cattle['time']}}</div>
+      </div>
+    </header>
+    <p class="body">near {{ cattle['place'] }}</p>
+  </article>
+
+-->

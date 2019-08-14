@@ -9,26 +9,15 @@ from flask_login import LoginManager, current_user, login_user, logout_user
 login_manager = LoginManager()
 
 
-from werkzeug.security import check_password_hash, generate_password_hash
+# from werkzeug.security import check_password_hash, generate_password_hash
 
-from seecow.db import get_db
-from seecow.user import User
+# from seecow.dbconn import get_db
+from seecow.model import User
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 from flask_login import login_required
-# # Replaces this custom code
-# def login_required(view):
-#     """View decorator that redirects anonymous users to the login page."""
-#     @functools.wraps(view)
-#     def wrapped_view(**kwargs):
-#         if g.user is None:
-#             return redirect(url_for('auth.login'))
-
-#         return view(**kwargs)
-
-#     return wrapped_view
 
 
 @bp.before_app_request
@@ -40,22 +29,12 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        u = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
-        ).fetchone()
-        g.user = u
-        User(u['id'], u['username'],u['password'])
+        g.user = User.query.get(int(user_id))
 
 #check for validity of user
-#assuming user id is based on session's user_id
 @login_manager.user_loader
 def load_user(userid):
-    if(session.get('user_id')== userid ):
-        flash('User Loader found user {0}'.format(userid))
-        return User.get_id(userid)
-    else:
-        flash('User Loader found user {0}'.format(userid))
-        return None
+    return User.query.get(int(user_id))
 
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -67,28 +46,23 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
         error = None
 
         if not username:
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-        elif db.execute(
-            'SELECT id FROM user WHERE username = ?', (username,) # DB Library escapes parameters! Not vulnerable to SQL injection attack
-        ).fetchone() is not None:                   
+        elif User.query.filter_by(username=username).first() is not None:
             error = 'User {0} is already registered.'.format(username)
             flash(error)
             return redirect(url_for('auth.login')) # adding redirect in case registered
 
+
         if error is None:
             # the name is available, store it in the database and go to
             # the login page
-            db.execute(
-                'INSERT INTO user (username, password) VALUES (?, ?)',
-                (username, generate_password_hash(password))
-            )
-            db.commit()
+            u = User(username,password)
+            u.save()
             return redirect(url_for('auth.login'))
 
         flash(error)
@@ -102,36 +76,29 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
         error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
-        ).fetchone()
+        user = User.query.filter_by(username=username).first()
 
         if user is None:
             error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
+        elif not user.check_password(password):
             error = 'Incorrect password.'
-
+        
         if error is None:
             # store the user id in a new session and return to the index
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = user.id   
+          
 
-# Security features
-# Ref: https://riptutorial.com/flask/example/28112/using-flask-login-extension
+        # Security features
+        # Ref: https://riptutorial.com/flask/example/28112/using-flask-login-extension
             # Login and validate the user.
             # user should be an instance of your `User` class
-            user_ = User(user['id'],user['username'],user['password'])
-            login_user(user_)#, remember=form.remember_me.data)
-
+            login_user(user)
             # flash('User is active? {0}'.format(user_.is_active))
             # flash('User is authenticated? {0}'.format(current_user.is_authenticated))
 
-
-            # return redirect(url_for('index'))
-
-#  securing redirect URL using flask login mechanimsms
+        #  securing redirect URL using flask login mechanimsms
             # flash('Logged in successfully.')
 
             next = request.args.get('next')

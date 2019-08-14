@@ -6,7 +6,8 @@ from flask import (
 import json,sys
 from flask_restful import Resource, Api
 import math
-from seecow.db import get_db
+# from seecow.dbconn import get_db
+from seecow.model import Parlor
 
 bp = Blueprint('camfeed', __name__)
 
@@ -17,52 +18,44 @@ def index():
 @bp.route('/current_status', methods=['GET'])
 def current_status():
     """Show all status, most recent first."""
-    db = get_db()
-    cattle_status = db.execute(
-        'SELECT *'
-        ' FROM parlor_status'
-        ' ORDER BY time_in DESC',
-    ).fetchall()    # returns a list
-    msg = 'Number of records = {0}.'.format(len(cattle_status))
+    cattle_list =Parlor.query.all()
+    # msg = 'Number of records = {0}.'.format(len(cattle_status))
     # flash(msg)
-    return render_template('camfeed/list.html', cattle_status=cattle_status)
-    # return cattle_status
+    return render_template('camfeed/list.html', cattle_dict=cattle_list)
+
+#TODO: Implement more APIs
 
 
-# def current_status():
-#     return jsonify({'result' : json.loads(dumps(CATTLE_STATUS.find().limit(5).sort("time", -1)))})
-
-
-@bp.route('/cattle/<id>', methods=['GET'])
-def get_one_cattle(id):
-    cattle = get_db().execute(
-        'SELECT *'
-        ' FROM parlor_status'
-        ' WHERE cattle_id LIKE ?',
-        (id,)
-    ).fetchone()
-    return cattle           # returns a list
-
+# @bp.route('/cattle/<id>', methods=['GET'])
 # def get_one_cattle(id):
+#     cattle = get_db().execute(
+#         'SELECT *'
+#         ' FROM parlor_status'
+#         ' WHERE cattle_id LIKE ?',
+#         (id,)
+#     ).fetchone()
+#     return cattle           # returns a list
 
-#     q = CATTLE_STATUS.find_one({'CATTLE_ID' : id})
+# # def get_one_cattle(id):
 
-#     if q:
-#         output = {'id' : q['CATTLE_ID'], 'Cattle Status' : q['Status']}
-#     else:
-#         output = 'No results found'
+# #     q = CATTLE_STATUS.find_one({'CATTLE_ID' : id})
 
-#     return jsonify({'result' : output})
+# #     if q:
+# #         output = {'id' : q['CATTLE_ID'], 'Cattle Status' : q['Status']}
+# #     else:
+# #         output = 'No results found'
+
+# #     return jsonify({'result' : output})
 
 
-@bp.route('/insert_status/<id>/<status>/<location>', methods=['GET','POST'])
-def insert_status(id,status,location):
-    cattle = get_db().execute(
-        'INSERT '
-        ' INTO parlor_status'
-        ' VALUES(ID, STATUS, LOCATION)',
-        (id,status,location)
-    )
+# @bp.route('/insert_status/<id>/<status>/<location>', methods=['GET','POST'])
+# def insert_status(id,status,location):
+#     cattle = get_db().execute(
+#         'INSERT '
+#         ' INTO parlor_status'
+#         ' VALUES(ID, STATUS, LOCATION)',
+#         (id,status,location)
+#     )
 
 
 # 	NEW_CATTLE_STATUS = CATTLE_STATUS.update({'CATTLE_ID' : id}, {'CATTLE_ID' : id,'Status' : Status,'LOCATION' : LOCATION})

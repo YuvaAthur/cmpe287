@@ -24,6 +24,8 @@ setup(
         'flask_restful',
         'json',
         'sys',
+        'sqlite3',
+        'flask_sqlalchemy',
     ],
     extras_require={
         'test': [
