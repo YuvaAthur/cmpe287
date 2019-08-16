@@ -5,7 +5,7 @@ from flask import (
 import json,sys
 from flask_restful import Resource, Api
 import math
-from seecow.dbconn import get_db
+from seecow import db
 
 
 bp = Blueprint('dashboard', __name__)

@@ -52,7 +52,13 @@
         * Test data fetch
         * >>> from seecow.model import User
         * >>> User.query.all()
-
+    * For testing small changes, reload module
+        * >>> import importlib
+        * >>> import seecow.model
+        * >>> importlib.reload(seecow.model)
+    * TODO: Putting it into script for repeated use
+        * Ref: https://stackoverflow.com/questions/44758588/running-python-script-in-interactive-python-prompt-and-keep-the-variables
+        * >>> exec(open("./seecow/modelfill.py").read())
 
 
 
